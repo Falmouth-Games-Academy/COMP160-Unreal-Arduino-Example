@@ -40,16 +40,24 @@ public:
 	//bytes available. The function return -1 when nothing could
 	//be read, the number of bytes actually read.
 	unsigned long int ReadData(char *buffer, unsigned int nbChar);
+
 	//Writes data from a buffer through the Serial connection
 	//return true on success.
-
 	bool WriteData(char *buffer, unsigned int nbChar);
+
 	//Check if we are actually connected
+	UFUNCTION(BlueprintCallable, Category = Arduino)
 	bool IsConnected();
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	UFUNCTION(BlueprintCallable, Category = Arduino)
+	bool WriteData(const FString& data);
+
 	//String recieved from Arduino
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Arduino)
 	FString dataStr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+	FString COMPort;
 };

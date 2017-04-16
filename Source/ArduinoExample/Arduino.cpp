@@ -11,8 +11,10 @@ AArduino::AArduino()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	COMPort = "COM3";
+
 	// connect to port using wide character string 'L'
-	this->connect(L"COM7");
+	this->connect(const_cast<wchar_t*>(*COMPort));
 
 	// check connection
 	if (this->IsConnected()) UE_LOG(LogTemp, Warning, TEXT("Connection Success"));
@@ -163,6 +165,20 @@ void AArduino::Tick(float DeltaTime)
 	}
 }
 
+bool AArduino::WriteData(char * buffer, unsigned int nbChar)
+{
+	//Number of bytes we'll have written
+	unsigned long int bytesWritten;
+
+	if (WriteFile(this->hSerial, buffer, nbChar, &bytesWritten, NULL))
+	{
+
+		return true;
+	}
+
+	return false;
+}
+
 bool AArduino::IsConnected()
 {
 	//Simply return the connection status
@@ -172,7 +188,7 @@ bool AArduino::IsConnected()
 void AArduino::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 
 	Super::EndPlay(EndPlayReason);
-
+	UE_LOG(LogTemp, Warning, TEXT("Closing Connection"));
 	//Check if we are connected before trying to disconnect
 	if (this->connected)
 	{
@@ -180,5 +196,12 @@ void AArduino::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 		this->connected = false;
 		//Close the serial handler
 		CloseHandle(this->hSerial);
+		UE_LOG(LogTemp, Warning, TEXT("Connection Closed"));
 	}
+}
+
+bool AArduino::WriteData(const FString & data)
+{
+	WriteData(TCHAR_TO_ANSI(*data), data.Len()*sizeof(char));
+	return false;
 }
